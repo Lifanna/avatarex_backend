@@ -3,27 +3,27 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, username, password=None, **extra_fields):
-        if not username or password is None:
+    def create_user(self, email, password=None, **extra_fields):
+        if not email or password is None:
             raise ValueError('Required.')
 
         # email = self.normalize_email(email)
-        user = self.model(username=username, **extra_fields)
+        user = self.model(email=email, **extra_fields)
 
         user.set_password(password)
         user.save()
 
         return user
 
-    def create_superuser(self, username, password=None, **extra_fields):
-        if not username or password is None:
+    def create_superuser(self, email, password=None, **extra_fields):
+        if not email or password is None:
             raise ValueError('Required.')
 
         extra_fields['is_superuser'] = True
         extra_fields['is_staff'] = True
 
         # email = self.normalize_email(email)
-        user = self.model(username=username, **extra_fields)
+        user = self.model(email=email, **extra_fields)
 
         user.set_password(password)
         user.save()
@@ -32,8 +32,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField("Логин", max_length=50, unique=True)
-    # email = models.EmailField(max_length=50, unique=True)
+    email = models.EmailField(max_length=50, unique=True)
     first_name = models.CharField(max_length=12, verbose_name='Имя', null=True)
     last_name = models.CharField(max_length=12, verbose_name='Фамилия', null=True)
     is_active = models.BooleanField(default=True, verbose_name='Прошел активацию')
@@ -44,7 +43,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomUserManager()
 
-    USERNAME_FIELD = "username"
+    USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     def get_full_name(self):
@@ -60,9 +59,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return True
 
     def __str__(self):
-        return self.username
+        return self.email
 
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ['username']
+        ordering = ['email']

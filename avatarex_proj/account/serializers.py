@@ -23,9 +23,26 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CustomUser
         fields = (
-            'username',
+            'email',
             'first_name',
             'last_name',
             'password1',
             'password2',
         )
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        # Проверяем, что новый пароль и подтверждение совпадают
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("Новый пароль и подтверждение не совпадают")
+
+        return data
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
