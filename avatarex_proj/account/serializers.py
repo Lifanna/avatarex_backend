@@ -32,7 +32,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    uid64 = serializers.CharField(write_only=True, required=True)
+    token = serializers.CharField(write_only=True, required=True)
     new_password = serializers.CharField(write_only=True, required=True)
     confirm_password = serializers.CharField(write_only=True, required=True)
 
