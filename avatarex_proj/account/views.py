@@ -16,6 +16,9 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from smtplib import SMTPRecipientsRefused
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_decode
 
 
 class UserCreateAPIView(generics.CreateAPIView):
@@ -69,25 +72,39 @@ class PasswordResetView(views.APIView):
         return Response({"detail": "Письмо для восстановления пароля отправлено на ваш адрес электронной почты."}, status=status.HTTP_200_OK)
 
 
-class CustomPasswordResetConfirmView(PasswordResetConfirmView):
-    def get(self, request, *args, **kwargs):
-        return Response({"detail": "GET запросы не разрешены"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
+ 
+class CustomPasswordResetConfirmView(views.APIView):
+    # ваш существующий код
+ 
     def post(self, request, *args, **kwargs):
         serializer = PasswordResetConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        user = serializer.validated_data['user']
-
+ 
+        uidb64 = serializer.validated_data['uid64']
+        token = serializer.validated_data['token']
+        user = self.get_user(uidb64)
+        print(user)
+ 
+        if user is None or not default_token_generator.check_token(user, token):
+            # Если пользователь или токен не действительны
+            return Response({"detail": "Ссылка для сброса пароля не действительна."}, status=status.HTTP_400_BAD_REQUEST)
+ 
         # Проверяем, что пользователь может устанавливать новый пароль
         if not user.is_active:
             return Response({"detail": "Пользователь не активен"}, status=status.HTTP_400_BAD_REQUEST)
-
+ 
         # Обновляем пароль
         user.set_password(serializer.validated_data['new_password'])
         user.save()
-
+ 
         return Response({"detail": "Пароль успешно изменен"}, status=status.HTTP_200_OK)
+
+    def get_user(self, uidb64):
+        try:
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            return get_user_model().objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, get_user_model().DoesNotExist):
+            return None
 
 
 class UserProfileAPIView(views.APIView):
