@@ -42,7 +42,7 @@ class PasswordResetView(views.APIView):
             send_mail(
                 'Восстановление пароля',
                 message,
-                'loginovmih86@mail.ru',  # замените на свой адрес электронной почты
+                'marzhan.zhanibek@mail.ru',  # замените на свой адрес электронной почты
                 [user.email],
                 fail_silently=False,
             )
@@ -88,3 +88,12 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
         user.save()
 
         return Response({"detail": "Пароль успешно изменен"}, status=status.HTTP_200_OK)
+
+
+class UserProfileAPIView(views.APIView):
+    def get(self, request):
+        user = request.user
+
+        serializer = serializers.CustomUserSerializer(user)
+
+        return Response(serializer.data)

@@ -10,4 +10,6 @@ urlpatterns = [
     path("verify", TokenVerifyView.as_view(), name="verify-token"),
     path("password-reset", views.PasswordResetView.as_view(), name="password-reset"),
     path('password-reset/confirm', views.CustomPasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+
+    path("user_profile", views.UserProfileAPIView.as_view(), name="user-profile"),
 ]
