@@ -108,9 +108,38 @@ class CustomPasswordResetConfirmView(views.APIView):
 
 
 class UserProfileAPIView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = request.user
 
         serializer = serializers.CustomUserSerializer(user)
 
         return Response(serializer.data)
+
+class BindView(views.APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = serializers.CustomUserServiceSerializer(data=request.data)
+        if serializer.is_valid():
+            service = models.Service.objects.get(name=request.data.get("service").lower())
+            customuser_service = models.CustomUserService(
+                customUser = request.user,
+                service = service,
+                service_credentials = request.data.get("service_creds")
+            )
+
+            customuser_service.save()
+
+        return Response(serializer.data)
+
+
+class UserServiceListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = serializers.UserServiceListSerializer
+    queryset = models.CustomUserService.objects.all()
+
+    def get_queryset(self):
+        queryset = models.CustomUserService.objects.filter(customUser = self.request.user)
+        return queryset

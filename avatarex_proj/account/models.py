@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.utils import timezone
 
 
 class CustomUserManager(BaseUserManager):
@@ -65,3 +66,17 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ['email']
+
+
+class Service(models.Model):
+    name = models.CharField(max_length=12, verbose_name='Имя', null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+
+
+class CustomUserService(models.Model):
+    service = models.ForeignKey("Service", on_delete=models.CASCADE, null=True)
+    service_credentials = models.JSONField("Данные сервиса", default=True)
+    customUser = models.ForeignKey("CustomUser", on_delete=models.CASCADE, default=False)
+    created_at = models.DateTimeField(auto_now_add=True,  null=True, verbose_name='Дата создания')
+    updated_at = models.DateTimeField(auto_now=True, null=True)

@@ -47,3 +47,21 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+class ServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+
+class CustomUserServiceSerializer(serializers.Serializer):
+    service_creds = serializers.JSONField()
+    service = serializers.CharField()
+
+class UserServiceListSerializer(serializers.ModelSerializer):
+    service = ServiceSerializer()
+    class Meta:
+        model = models.CustomUserService
+        fields = "__all__"
+
+    
