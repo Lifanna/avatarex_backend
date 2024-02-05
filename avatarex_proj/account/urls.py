@@ -11,6 +11,7 @@ urlpatterns = [
     path("user-service-list", views.UserServiceListAPIView.as_view(), name="user-service-list"),
     path("password-reset", views.PasswordResetView.as_view(), name="password-reset"),
     path('password-reset/confirm', views.CustomPasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+    path('unbind-service/<int:pk>', views.CustomUserServiceDestroyView.as_view(), name='unbind-service'),
     path('bind', views.BindView.as_view(), name='bind'),
     path("user_profile", views.UserProfileAPIView.as_view(), name="user-profile"),
 ]

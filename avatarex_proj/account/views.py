@@ -123,12 +123,13 @@ class BindView(views.APIView):
     def post(self, request):
         serializer = serializers.CustomUserServiceSerializer(data=request.data)
         if serializer.is_valid():
-            service = models.Service.objects.get(name=request.data.get("service").lower())
+            service = models.Service.objects.get(name=request.data.get("service"))
             customuser_service = models.CustomUserService(
                 customUser = request.user,
                 service = service,
                 service_credentials = request.data.get("service_creds")
             )
+            print("hdvnbvsaf",  service)
 
             customuser_service.save()
 
@@ -143,3 +144,13 @@ class UserServiceListAPIView(generics.ListAPIView):
     def get_queryset(self):
         queryset = models.CustomUserService.objects.filter(customUser = self.request.user)
         return queryset
+
+class CustomUserServiceDestroyView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = models.CustomUserService.objects.all()
+    serializer_class = serializers.UserServiceListSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=204)

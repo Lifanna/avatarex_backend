@@ -73,10 +73,25 @@ class Service(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, null=True)
 
+    def __str__(self) -> str:
+        return self.name
+
+    class Meta:
+        verbose_name = 'Сервис'
+        verbose_name_plural = 'Сервисы'
+
 
 class CustomUserService(models.Model):
-    service = models.ForeignKey("Service", on_delete=models.CASCADE, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True, verbose_name="service")
     service_credentials = models.JSONField("Данные сервиса", default=True)
-    customUser = models.ForeignKey("CustomUser", on_delete=models.CASCADE, default=False)
+    customUser = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=False, verbose_name="customUser")
     created_at = models.DateTimeField(auto_now_add=True,  null=True, verbose_name='Дата создания')
     updated_at = models.DateTimeField(auto_now=True, null=True)
+
+    def __str__(self) -> str:
+        return self.customUser.email + " / " + self.service.name
+
+    class Meta:
+        verbose_name = 'Сервис пользователя'
+        verbose_name_plural = 'Сервисы пользователей'
+        unique_together = ('service', 'customUser',)
